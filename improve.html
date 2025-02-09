@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Salary Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: url('https://i.postimg.cc/B665Cn8z/stars.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+        }
+        label, input {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            font-size: 18px;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            font-size: 18px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        .netPay {
+            font-size: 24px;
+            color: gold;
+            margin-top: 10px;
+        }
+        .error {
+            color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Monthly Salary Calculator</h2>
+        <label for="salary">Enter Monthly Salary (€):</label>
+        <input type="number" id="salary" placeholder="e.g. 7457.78">
+
+        <label for="taxCredits">Enter Monthly Tax Credit (€):</label>
+        <input type="number" id="taxCredits" value="749.17">
+
+        <label for="cutOffPoint">Monthly Cut-Off Point (€):</label>
+        <input type="number" id="cutOffPoint" value="4477.75">
+
+        <button onclick="calculateTax()">Calculate</button>
+        <div class="result" id="results"></div>
+    </div>
+
+    <script>
+        function calculateTax() {
+            let salary = parseFloat(document.getElementById("salary").value);
+
+            if (isNaN(salary) || salary <= 0) {
+                document.getElementById("results").innerHTML = "<p class='error'>Please enter a valid salary.</p>";
+                return;
+            }
+
+            let taxCredits = parseFloat(document.getElementById("taxCredits").value) || 0;
+            let cutOffPoint = parseFloat(document.getElementById("cutOffPoint").value) || 0;
+
+            // ASC Calculation
+            let asc = (Math.min(2875, salary) * 0) +
+                (Math.min(5000 - 2875, Math.max(0, salary - 2875)) * 0.0333) +
+                (Math.max(0, salary - 5000) * 0.035);
+
+            // Pension Calculation (Updated for 2025 OAP Rate)
+            let oapThreshold = (289.30 * 2 * 52.18) / 12;
+            let pension = (salary * 0.03) + (Math.max(0, salary - oapThreshold) * 0.035);
+
+            // Taxable Income Calculation
+            let taxableIncome = salary - asc - pension;
+
+            // Income Tax Calculation (Corrected)
+            let incomeTax = 0;
+            if (taxableIncome <= cutOffPoint) {
+                incomeTax = taxableIncome * 0.2;
+            } else {
+                incomeTax = (cutOffPoint * 0.2) + ((taxableIncome - cutOffPoint) * 0.4);
+            }
+
+            incomeTax = Math.max(0, incomeTax - taxCredits);
+
+            // USC Calculation
+            let usc = (Math.min(1001, salary) * 0.005) +
+                (Math.min(1280.84, Math.max(0, salary - 1001)) * 0.02) +
+                (Math.min(3555.17, Math.max(0, salary - 2281.84)) * 0.03) +
+                (Math.max(0, salary - 5837.01) * 0.08);
+
+            // PRSI Calculation
+            let prsi = salary * 0.041;
+
+            // Net Pay Calculation
+            let netPay = salary - incomeTax - usc - prsi - asc - pension;
+
+            document.getElementById("results").innerHTML = `
+                <p>Income Tax: €${incomeTax.toFixed(2)}</p>
+                <p>USC: €${usc.toFixed(2)}</p>
+                <p>PRSI: €${prsi.toFixed(2)}</p>
+                <p>ASC: €${asc.toFixed(2)}</p>
+                <p>Pension: €${pension.toFixed(2)}</p>
+                <p class="netPay">Net Pay: €${netPay.toFixed(2)}</p> 
+            `;
+        }
+    </script>
+</body>
+</html>
