@@ -87,10 +87,6 @@
             }
         }
 
-        canvas {
-            margin-top: 20px;
-        }
-
     </style>
 </head>
 <body>
@@ -114,9 +110,9 @@
         <button onclick="downloadPDF()" style="margin-top: 20px;">Download PDF</button>
     </div>
 
-    <!-- Include Chart.js library for the graph -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Include html2canvas and jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
         function calculateTax() {
@@ -185,9 +181,6 @@
                 <p>Pension: €${pension.toFixed(2).toLocaleString()}</p>
                 <p class="netPay">Net Pay: €${netPay.toFixed(2).toLocaleString()}</p>
             `;
-
-            // Draw chart
-            drawChart(incomeTax, usc, prsi, asc, pension, netPay);
         }
 
         function downloadPDF() {
@@ -195,49 +188,26 @@
                 const imgData = canvas.toDataURL('image/png');
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
-                doc.addImage(imgData, 'PNG', 0, 0, 210, 297); // Add background image to PDF (A4 size)
-                doc.text(document.getElementById("results").innerText, 10, 10);
+
+                // Set up the PDF dimensions
+                const pdfWidth = 210;  // A4 width in mm
+                const pdfHeight = 297; // A4 height in mm
+                const imgWidth = pdfWidth;
+                const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+
+                // Add the background image (the entire page)
+                doc.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+
+                // Add the calculated results as text
+                const resultsText = document.getElementById("results").innerText;
+                doc.setFontSize(12);
+                doc.text(resultsText, 10, 180);  // Adjust the text position on the PDF
+
+                // Save the PDF with the background image and results
                 doc.save("salary_calculation_with_background.pdf");
             });
         }
-
-        function drawChart(incomeTax, usc, prsi, asc, pension, netPay) {
-            const ctx = document.createElement("canvas");
-            document.body.appendChild(ctx);
-            
-            const data = {
-                labels: ["Income Tax", "USC", "PRSI", "ASC", "Pension", "Net Pay"],
-                datasets: [{
-                    data: [incomeTax, usc, prsi, asc, pension, netPay],
-                    backgroundColor: ["red", "blue", "green", "purple", "orange", "gold"],
-                }]
-            };
-
-            const config = {
-                type: 'pie',
-                data: data,
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(tooltipItem) {
-                                    return tooltipItem.label + ': €' + tooltipItem.raw.toFixed(2).toLocaleString();
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-
-            new Chart(ctx, config);
-        }
     </script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 </body>
 </html>
