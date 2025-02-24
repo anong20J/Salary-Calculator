@@ -14,17 +14,19 @@
             background-repeat: no-repeat;
             color: white;
         }
+
         .container {
             position: absolute;
-    bottom: 220px; /* Adjust this value as needed */ 
-    left: 85%;
-    transform: translateX(-50%);
-    max-width: 400px;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.7);
-    border-radius: 10px;
-    text-align: center;
+            bottom: 220px; /* Adjust this value as needed */ 
+            left: 85%;
+            transform: translateX(-50%);
+            max-width: 400px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            text-align: center;
         }
+
         label, input {
             display: block;
             width: 100%;
@@ -36,6 +38,7 @@
             border: none;
             color: white;
         }
+
         button {
             width: 100%;
             padding: 10px;
@@ -46,47 +49,92 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
         button:hover {
             background-color: #0056b3;
         }
+
         .result {
             margin-top: 20px;
             font-weight: bold;
             font-size: 20px;
         }
+
         .netPay {
             font-size: 24px;
             color: gold;
             margin-top: 10px;
         }
+
         .disclaimer {
             font-size: 14px;
             color: #ddd;
             margin-top: 20px;
             text-align: center;
         }
+
         .error {
             color: yellow;
             margin-top: 10px;
+        }
+
+        .tooltip {
+            cursor: pointer;
+            border-bottom: 1px dotted white;
+        }
+
+        .tooltip:hover::after {
+            content: attr(title);
+            position: absolute;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px;
+            font-size: 14px;
+            border-radius: 3px;
+            top: 20px;
+            left: 0;
+            z-index: 10;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 600px) {
+            .container {
+                bottom: 30px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>Monthly Salary Calculator</h2>
-        <label for="salary">Monthly Gross Salary (€):</label>
+
+        <label for="salary">Monthly Gross Salary (€): 
+            <span class="tooltip" title="Enter your total monthly salary before deductions">?</span>
+        </label>
         <input type="number" id="salary" placeholder="e.g. 7457.78">
 
-        <label for="taxCredits">Enter Your Monthly Tax Credit (€):</label>
-        <input type="number" id="taxCredits" placeholder="e.g. 749.17"> 
+        <label for="taxCredits">Enter Your Monthly Tax Credit (€): 
+            <span class="tooltip" title="Enter the amount of tax credit you receive each month">?</span>
+        </label>
+        <input type="number" id="taxCredits" placeholder="e.g. 749.17">
 
-        <label for="cutOffPoint">Monthly Cut-Off Point (€):</label>
-        <input type="number" id="cutOffPoint" placeholder="e.g. 4477.75"> 
+        <label for="cutOffPoint">Monthly Cut-Off Point (€): 
+            <span class="tooltip" title="Enter the monthly salary cut-off point for tax calculation">?</span>
+        </label>
+        <input type="number" id="cutOffPoint" placeholder="e.g. 4477.75">
+
+        <label for="healthInsurance">Monthly Health Insurance (€): 
+            <span class="tooltip" title="Enter your monthly health insurance cost (optional)">?</span>
+        </label>
+        <input type="number" id="healthInsurance" placeholder="e.g. 200.00">
 
         <button onclick="calculateTax()">Calculate</button>
         <div class="result" id="results"></div>
         <p class="disclaimer"><b>Important:</b> This calculator provides estimates and may have slight discrepancies due to rounding. For official calculations, please consult with a payroll professional.</p>
         <div class="error" id="error-message"></div>
+        <button onclick="downloadPDF()" style="margin-top: 20px;">Download PDF</button>
     </div>
 
     <script>
@@ -94,6 +142,7 @@
             const salaryInput = document.getElementById("salary");
             const taxCreditsInput = document.getElementById("taxCredits");
             const cutOffPointInput = document.getElementById("cutOffPoint");
+            const healthInsuranceInput = document.getElementById("healthInsurance");
 
             if (salaryInput.value.trim() === "") {
                 document.getElementById("error-message").textContent = "Please enter your gross monthly salary.";
@@ -108,11 +157,12 @@
 
             const taxCredits = parseFloat(taxCreditsInput.value) || 0;
             const cutOffPoint = parseFloat(cutOffPointInput.value) || 0;
+            const healthInsurance = parseFloat(healthInsuranceInput.value) || 0;
 
-            // Calculate ASC (Annual Service Charge) - Example: 
+            // Calculate ASC (Annual Service Charge)
             const asc = (Math.min(2875, salary) * 0) + 
-                      (Math.min(5000 - 2875, Math.max(0, salary - 2875)) * 0.0333) + 
-                      (Math.max(0, salary - 5000) * 0.035); 
+                        (Math.min(5000 - 2875, Math.max(0, salary - 2875)) * 0.0333) + 
+                        (Math.max(0, salary - 5000) * 0.035); 
 
             // Calculate Pension
             const pension = (salary * 0.03) + (Math.max(0, salary - (289.30 * 2 * 52.18 / 12)) * 0.035); 
@@ -129,7 +179,7 @@
             }
             incomeTax = Math.max(0, incomeTax - taxCredits); 
 
-            // Calculate USC (Universal Social Charge) - Example:
+            // Calculate USC (Universal Social Charge)
             let usc = 0;
             if (salary <= 1001) {
                 usc = salary * 0.005;
@@ -141,11 +191,11 @@
                 usc = 136.63 + (Math.max(0, salary - 5837.01) * 0.08);
             }
 
-            // Calculate PRSI (Pay Related Social Insurance) - Example:
+            // Calculate PRSI (Pay Related Social Insurance)
             const prsi = salary * 0.04; 
 
             // Calculate Net Pay
-            const netPay = salary - incomeTax - usc - prsi - asc - pension;
+            const netPay = salary - incomeTax - usc - prsi - asc - pension - healthInsurance;
 
             // Display the result
             document.getElementById("results").innerHTML = `
@@ -154,10 +204,21 @@
                 <p>PRSI: €${prsi.toFixed(2).toLocaleString()}</p>
                 <p>ASC: €${asc.toFixed(2).toLocaleString()}</p>
                 <p>Pension: €${pension.toFixed(2).toLocaleString()}</p>
+                <p>Health Insurance: €${healthInsurance.toFixed(2).toLocaleString()}</p>
                 <p class="netPay">Net Pay: €${netPay.toFixed(2).toLocaleString()}</p>
             `;
         }
+
+        function downloadPDF() {
+            const results = document.getElementById("results").innerText;
+            const doc = new jsPDF();
+            doc.text(results, 10, 10);
+            doc.save("salary_calculation.pdf");
+        }
     </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 </body>
 </html>
+
