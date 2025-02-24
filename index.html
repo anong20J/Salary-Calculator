@@ -7,20 +7,22 @@
     <style>
         body {
             font-family: Helvetica, Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
+            height: 100vh;
             background-image: url('stars.jpg'); /* Assuming 'stars.jpg' is in the same directory */
             background-size: cover;
             background-position: center 28%;
             background-repeat: no-repeat;
             color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
         }
 
         .container {
-            position: absolute;
-            bottom: 220px; /* Adjust this value as needed */ 
-            left: 85%;
-            transform: translateX(-50%);
             max-width: 400px;
+            width: 100%;
             padding: 20px;
             background: rgba(0, 0, 0, 0.7);
             border-radius: 10px;
@@ -99,9 +101,7 @@
         /* Mobile responsiveness */
         @media (max-width: 600px) {
             .container {
-                bottom: 30px;
-                left: 50%;
-                transform: translateX(-50%);
+                padding: 15px;
             }
         }
     </style>
@@ -221,4 +221,3 @@
 
 </body>
 </html>
-
