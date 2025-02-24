@@ -183,8 +183,12 @@
         }
 
         function downloadPDF() {
+            console.log('Download PDF clicked!');
+            
             html2canvas(document.querySelector("body"), {
-                scrollY: -window.scrollY // Prevent any vertical scroll offset in PDF rendering
+                scrollY: -window.scrollY, // Adjust scroll offset
+                logging: true, // Enable logging for debugging
+                useCORS: true // Enable CORS if background image is hosted externally
             }).then(function(canvas) {
                 const imgData = canvas.toDataURL('image/png');
                 const { jsPDF } = window.jspdf;
@@ -206,6 +210,9 @@
 
                 // Save the PDF with the background image and results
                 doc.save("salary_calculation_with_background.pdf");
+                console.log('PDF generated and saved!');
+            }).catch(function(error) {
+                console.error('Error generating PDF:', error);
             });
         }
     </script>
