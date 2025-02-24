@@ -105,13 +105,7 @@
         <div class="result" id="results"></div>
         <p class="disclaimer"><b>Important:</b> This calculator provides estimates and may have slight discrepancies due to rounding. For official calculations, please consult with a payroll professional.</p>
         <div class="error" id="error-message"></div>
-
-        <button onclick="downloadPDF()" style="margin-top: 20px;">Download PDF</button>
     </div>
-
-    <!-- Include html2canvas and jsPDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
         function calculateTax() {
@@ -180,40 +174,6 @@
                 <p>Pension: €${pension.toFixed(2).toLocaleString()}</p>
                 <p class="netPay">Net Pay: €${netPay.toFixed(2).toLocaleString()}</p>
             `;
-        }
-
-        function downloadPDF() {
-            console.log('Download PDF clicked!');
-            
-            html2canvas(document.querySelector("body"), {
-                scrollY: -window.scrollY, // Adjust scroll offset
-                logging: true, // Enable logging for debugging
-                useCORS: true // Enable CORS if background image is hosted externally
-            }).then(function(canvas) {
-                const imgData = canvas.toDataURL('image/png');
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-
-                // Set up the PDF dimensions
-                const pdfWidth = 210;  // A4 width in mm
-                const pdfHeight = 297; // A4 height in mm
-                const imgWidth = pdfWidth;
-                const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-
-                // Add the background image (the entire page)
-                doc.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-
-                // Add the calculated results as text
-                const resultsText = document.getElementById("results").innerText;
-                doc.setFontSize(12);
-                doc.text(resultsText, 10, 180);  // Adjust the text position on the PDF
-
-                // Save the PDF with the background image and results
-                doc.save("salary_calculation_with_background.pdf");
-                console.log('PDF generated and saved!');
-            }).catch(function(error) {
-                console.error('Error generating PDF:', error);
-            });
         }
     </script>
 
