@@ -125,11 +125,6 @@
         </label>
         <input type="number" id="cutOffPoint" placeholder="e.g. 4477.75">
 
-        <label for="healthInsurance">Monthly Health Insurance (€): 
-            <span class="tooltip" title="Enter your monthly health insurance cost (optional)">?</span>
-        </label>
-        <input type="number" id="healthInsurance" placeholder="e.g. 200.00">
-
         <button onclick="calculateTax()">Calculate</button>
         <div class="result" id="results"></div>
         <p class="disclaimer"><b>Important:</b> This calculator provides estimates and may have slight discrepancies due to rounding. For official calculations, please consult with a payroll professional.</p>
@@ -142,7 +137,6 @@
             const salaryInput = document.getElementById("salary");
             const taxCreditsInput = document.getElementById("taxCredits");
             const cutOffPointInput = document.getElementById("cutOffPoint");
-            const healthInsuranceInput = document.getElementById("healthInsurance");
 
             if (salaryInput.value.trim() === "") {
                 document.getElementById("error-message").textContent = "Please enter your gross monthly salary.";
@@ -157,7 +151,6 @@
 
             const taxCredits = parseFloat(taxCreditsInput.value) || 0;
             const cutOffPoint = parseFloat(cutOffPointInput.value) || 0;
-            const healthInsurance = parseFloat(healthInsuranceInput.value) || 0;
 
             // Calculate ASC (Annual Service Charge)
             const asc = (Math.min(2875, salary) * 0) + 
@@ -195,7 +188,7 @@
             const prsi = salary * 0.04; 
 
             // Calculate Net Pay
-            const netPay = salary - incomeTax - usc - prsi - asc - pension - healthInsurance;
+            const netPay = salary - incomeTax - usc - prsi - asc - pension;
 
             // Display the result
             document.getElementById("results").innerHTML = `
@@ -204,13 +197,13 @@
                 <p>PRSI: €${prsi.toFixed(2).toLocaleString()}</p>
                 <p>ASC: €${asc.toFixed(2).toLocaleString()}</p>
                 <p>Pension: €${pension.toFixed(2).toLocaleString()}</p>
-                <p>Health Insurance: €${healthInsurance.toFixed(2).toLocaleString()}</p>
                 <p class="netPay">Net Pay: €${netPay.toFixed(2).toLocaleString()}</p>
             `;
         }
 
         function downloadPDF() {
             const results = document.getElementById("results").innerText;
+            const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             doc.text(results, 10, 10);
             doc.save("salary_calculation.pdf");
